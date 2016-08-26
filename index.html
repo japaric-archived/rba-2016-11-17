@@ -1,0 +1,405 @@
+<html>
+
+<head>
+  <link rel="stylesheet" href="css/reveal.css">
+  <link rel="stylesheet" href="css/theme/black.css">
+</head>
+
+<body>
+  <div class="reveal">
+    <div class="slides">
+      <section>
+        <h1>The state of embedded Rust</h1>
+
+        <p>
+          <a href="https://japaric.github.io/rba-2016-11-17">
+            https://japaric.github.io/rba-2016-11-17
+          </a>
+        </p>
+      </section>
+
+      <section>
+        <section>
+          <h2>What does "embedded" mean?</h2>
+        </section>
+
+        <section>
+          <h2>Embed Rust in another language?</h2>
+
+          <ul>
+            <li class="fragment"><a href="https://github.com/rustbridge/helix">Helix </a> (Ruby)</li>
+            <li class="fragment"><a href="https://github.com/rustbridge/neon">Neon</a> (Node.js)</li>
+          </ul>
+
+          <p class="fragment ">
+            (Nope, sorry!)
+          </p>
+        </section>
+
+        <section>
+          <h2>Embedded systems!</h2>
+
+          <img alt="" class="fragment" src="https://upload.wikimedia.org/wikipedia/commons/3/35/Onyxstar_Fox-C8_XT_xender_360.jpg" />
+        </section>
+
+        <section>
+          <h2>Actually ...</h2>
+
+          <div class="fragment">
+            <img alt="" height="300px" src="https://upload.wikimedia.org/wikipedia/commons/0/08/LGwashingmachine.jpg" />
+
+            <p>
+              Would be a more common embedded system.
+            </p>
+          </div>
+        </section>
+
+        <section>
+          <h2>What *is* an embedded system?</h2>
+
+          <ul>
+            <li class="fragment">Tightly integrated into the hardware (embedded)</li>
+            <li class="fragment">Usually control some process autonomously</li>
+            <li class="fragment">Not usually reprogrammed (firmware)</li>
+            <li class="fragment">At the core: microprocessor or microcontroller</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Microprocessor: Raspberry Pi</h2>
+
+          <img alt="" class="fragment stretch" width="40%" src="https://upload.wikimedia.org/wikipedia/commons/b/b4/Raspberry_Pi_3_Model_B.png" />
+
+          <ul>
+            <li class="fragment">Multicore processor</li>
+            <li class="fragment">1+ GHz CPU frequency</li>
+            <li class="fragment">GBs of memory</li>
+            <li class="fragment">IO pins</li>
+            <li class="fragment">Linux, a general purpose OS</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Microcontroller: Arduino</h2>
+
+          <img alt="" class="fragment stretch" width="40%" src="https://upload.wikimedia.org/wikipedia/commons/3/38/Arduino_Uno_-_R3.jpg" />
+
+          <ul>
+            <li class="fragment">Single core processor</li>
+            <li class="fragment">CPU frequency: Sub-100 MHz</li>
+            <li class="fragment">Dozens of KBs of memory</li>
+            <li class="fragment">IO pins</li>
+            <li class="fragment">No OS, bare metal</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Why a microcontroller?</h2>
+
+          <ul>
+            <li class="fragment">Cost
+              <ul>
+                <li class="fragment">Not just the part itself is cheaper</li>
+                <li class="fragment">You need less extra components</li>
+                <li class="fragment">PCB: simpler to design, cheaper to manufacture</li>
+              </ul>
+            </li>
+            <li class="fragment">Power consumption
+              <ul>
+                <li class="fragment">Orders of magnitude smaller</li>
+                <li class="fragment">Very important if running on batteries</li>
+              </ul>
+            </li>
+            <li class="fragment">"Real time"
+              <ul>
+                <li class="fragment">Need to respond to stimulus within some tight time constraint</li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+      </section>
+
+      <section>
+        <section>
+          <h2>How different is a Rust program for a microcontroller?</h2>
+
+          <div class="fragment">
+            <p>
+              Not that different
+            </p>
+
+            <pre><code data-trim>
+#[no_mangle]
+pub fn main() -> ! {
+    loop {
+        LEDS[0].on();
+        delay::ms(500);
+        LEDS[0].off();
+        delay::ms(500);
+    }
+}
+</code></pre>
+          </div>
+        </section>
+
+        <section>
+          <h2>Tooling</h2>
+
+          <ul>
+            <li class="fragment">The usual
+              <ul>
+                <li class="fragment">
+                  <span class="fragment strike">Cargo</span>
+                  <span class="fragment">Xargo</span>
+                </li>
+                <li class="fragment">GCC, as a linker</li>
+                <li class="fragment">GDB, as a debugger</li>
+                <li class="fragment">binutils: objdump, size, etc.</li>
+              </ul>
+            </li>
+            <li class="fragment">Some extra stuff
+              <ul>
+                <li class="fragment">OpenOCD</li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+      </section>
+
+      <section>
+        <section>
+          <h2>Demo I</h2>
+
+          <p>
+            Bootstrapping support for a new development board
+          </p>
+
+          <p>
+            <a href="https://github.com/japaric/cortex-m-template">
+              https://github.com/japaric/cortex-m-template
+            </a>
+          </p>
+        </section>
+
+        <section>
+          <h2>
+            <a href="http://www.st.com/resource/en/user_manual/dm00063382.pdf">
+              STM32F3DISCOVERY
+            </a>
+          </h2>
+
+          <ul>
+            <li>Cortex-M4 processor 72 MHz (max)
+              <ul>
+                <li>Single precision FPU co-processor</li>
+              </ul>
+            </li>
+            <li>256 KiB Flash, 40 KiB RAM</li>
+            <li>Sensors!
+              <ul>
+                <li>Accelerometer</li>
+                <li>Gyroscope</li>
+                <li>Magnetometer</li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+      </section>
+
+      <section>
+        <section>
+          <h2>An aside: Xargo</h2>
+
+          <p class="fragment">
+            It's not just for microcontrollers!
+          </p>
+        </section>
+
+        <section>
+          <h2>Other happy users</h2>
+
+          <p>
+            <ul>
+              <li class="fragment"><a href="https://github.com/intermezzOS/kernel/pull/62">Intermezzos</a></li>
+              <li class="fragment"><a href="https://github.com/rust3ds/rust3ds-template/pull/6">"Homebrew" 3DS</a></li>
+              <li class="fragment">Probably more!</li>
+            </ul>
+          </p>
+        </section>
+      </section>
+
+      <section>
+        <section>
+          <h2>Demo II</h2>
+
+          <p>
+            Peripherals!
+          </p>
+
+          <p>
+            <ul>
+              <li class="fragment">Extra functionality
+                <ul>
+                  <li class="fragment">Digital IO (turn stuff on/off)</li>
+                  <li class="fragment">Analog to Digital Converter (e.g. temperature)</li>
+                  <li class="fragment">Comm. protocols: I2C, Ethernet, etc.</li>
+                </ul>
+              </li>
+              <li class="fragment">Memory mapped I/O
+                <ul>
+                  <li class="fragment">Read/write to special memory</li>
+                </ul>
+              </li>
+            </ul>
+          </p>
+        </section>
+
+        <section>
+          <h2>The unsafe way</h2>
+
+          <p>
+            <a href="https://japaric.github.io/discovery/07-registers/README.html">Direct memory access</a>
+          </p>
+
+          <p>
+            <a href="http://www.st.com/resource/en/reference_manual/dm00043574.pdf">The reference manual (page 240)</a>
+          </p>
+        </section>
+
+        <section>
+          <h2>The safe way</h2>
+
+          <p>
+            <a href="https://japaric.github.io/discovery/07-registers/type-safe-manipulation.html">Types to the rescue!</a>
+          </p>
+
+          <ul>
+            <li>Get the address right</li>
+            <li>Get read/write access right</li>
+            <li>Don't modify the reserved parts of the register</li>
+          </ul>
+        </section>
+      </section>
+
+      <section>
+        <section>
+          <h2>Demo III</h2>
+
+          <p>
+            High level API and crates.io
+          </p>
+
+          <p class="fragment">
+            <a href="https://japaric.github.io/discovery/15-led-compass/README.html">An LED compass</a>
+          </p>
+
+          <p class="fragment">
+            <a href="https://docs.rs/f3">The f3 crate</a>
+          </p>
+        </section>
+      </section>
+
+      <section>
+        <section>
+          <h2>We can hack stuff, are we done?</h2>
+
+          <p class="fragment">
+            No! There's plenty to do.
+          </p>
+        </section>
+
+        <section>
+          <h2>rustc: Support more architectures</h2>
+
+          <ul>
+            <li class="fragment">&#9745; ARM Cortex-M</li>
+            <li class="fragment">&#9744; <a href="https://github.com/rust-embedded/rfcs/issues/3">AVR (Arduino!)</a>
+              <ul>
+                <li class="fragment"><a href="https://www.reddit.com/r/rust/comments/5df6tv/avr_backend_lands_in_llvm/">avr-llvm fork fully merged!</a></li>
+              </ul>
+            </li>
+            <li class="fragment">&#9744; <a href="https://github.com/rust-embedded/rfcs/issues/20">TI MSP430</a>
+              <ul>
+                <li class="fragment"><a href="https://github.com/rust-lang/rust/pull/37672">rustc: LLVM backend just got enabled</a></li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Tooling: less is better</h2>
+
+          <ul>
+            <li class="fragment"><a href="https://github.com/rust-lang/rust/pull/36120">embed lld, LLVM's linker, in rustc</a>
+              <ul>
+                <li class="fragment">no need to install arm-none-eabi-gcc</li>
+              </ul>
+            </li>
+            <li class="fragment"><a href="https://github.com/m4b/cargo-sym">cargo-sym</a>
+              <ul>
+                <li class="fragment">
+                  <p class="fragment strike">
+                    arm-none-eabi-objdump, avr-objdump, msp430-elf-objdump
+                  </p>
+                </li>
+                <li class="fragment">one Cargo subcommand to rule them all</li>
+              </ul>
+            </li>
+            <li class="fragment">More Cargo subcommands: cargo-flash, cargo-debug
+              <ul>
+                <li class="fragment">Abstract away other tools: OpenOCD, GDB, avrdude</li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Community: set the foundations</h2>
+
+          <ul>
+            <li class="fragment">Hardware Abstraction Layer
+              <ul>
+                <li class="fragment">Code reuse</li>
+                <li class="fragment">Bottom: Crate that defines interfaces (traits!)</li>
+                <li class="fragment">Generic drivers (e.g. magnetometer)</li>
+                <li class="fragment">I implement the traits for my micro</li>
+                <li class="fragment">I get access to all the drivers on crates.io</li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+      </section>
+
+      <section>
+        <h2>Want to join the fun?</h2>
+
+        <ul>
+          <li class="fragment">Beginner? No problem. Let's learn together
+            <ul>
+              <li class="fragment"><a href="https://japaric.github.io/discovery/">Discovery</a>. Walkthrough tutorial for beginners.</li>
+              <li class="fragment"><a href="https://japaric.github.io/copper/">Copper</a>. Low level details.</li>
+              <li class="fragment"><a href="https://github.com/japaric/cortex-m-template/">Cortex-M template</a>. Straight to hack stuff.</li>
+            </ul>
+          </li>
+          <li class="fragment"><a href="https://kiwiirc.com/client/irc.mozilla.org/">#rust-embedded</a> @ irc.mozilla.org (nick: japaric)</li>
+          <li class="fragment"><a href="https://github.com/rust-embedded/rfcs/issues">rust-embedded/rfcs</a> @ GitHub</li>
+          <li class="fragment"><a href="http://novemb.rs/">See you at novemb.rs this weekend!</a></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Thank you!</h2>
+
+        <p class="fragment">
+          Questions?
+        </p>
+      </section>
+    </div>
+  </div>
+  <script src="js/reveal.js"></script>
+  <script>
+    Reveal.initialize();
+  </script>
+</body>
+
+</html>
